@@ -83,22 +83,22 @@ int main(int argc, char **argv) {
     {@"selectedTextBackgroundColor", NSCalibratedWhiteColorSpace, {0.602715, 1.000000}},
     {@"unemphasizedSelectedTextBackgroundColor", NSCalibratedWhiteColorSpace, {0.602715, 1.000000}},
     {@"unemphasizedSelectedTextColor", NSCalibratedWhiteColorSpace, {0.000000, 1.000000}},
-    {@"windowBackgroundColor", NSCalibratedWhiteColorSpace, {0.710715, 1.000000}},
-    {@"underPageBackgroundColor", NSCalibratedWhiteColorSpace, {0.602715, 1.000000}},
-    {@"controlBackgroundColor", NSCalibratedWhiteColorSpace, {0.602715, 1.000000}},
-    {@"controlAlternatingRowColor", NSCalibratedWhiteColorSpace, {0.998189, 1.000000}},
-    {@"selectedContentBackgroundColor", NSCalibratedWhiteColorSpace, {1.000000, 1.000000}},
-    {@"unemphasizedSelectedContentBackgroundColor", NSCalibratedWhiteColorSpace, {0.602715, 1.000000}},
-    {@"alternatingContentBackgroundColor", NSCalibratedWhiteColorSpace, {0.998189, 1.000000}},
-    {@"findHighlightColor", NSCalibratedRGBColorSpace, {1.000000, 1.000000, 0.041410, 1.000000}},
-    {@"controlColor", NSCalibratedRGBColorSpace, {0.200, 0.450, 0.851, 1.000}}, // NSCalibratedWhiteColorSpace, {0.602715, 1.000000}},
-    {@"controlTextColor", NSCalibratedWhiteColorSpace, {0.925000, 1.000000}},
-    {@"controlShadowColor", NSCalibratedWhiteColorSpace, {0.500000, 1.000000}},
-    {@"selectedControlColor", NSCalibratedWhiteColorSpace, {1.000000, 1.000000}},
-    {@"selectedControlTextColor", NSCalibratedWhiteColorSpace, {0.000000, 1.000000}},
-    {@"disabledControlTextColor", NSCalibratedWhiteColorSpace, {0.263797, 1.000000}},
-    {@"keyboardFocusIndicatorColor", NSCalibratedWhiteColorSpace, {0.000000, 1.000000}},
-    {@"controlAccentColor", NSCalibratedRGBColorSpace, {0.000000, 0.000000, 0.998189, 1.000000}},
+    {@"windowBackgroundColor", NSCalibratedRGBColorSpace, {0.960, 0.960, 0.960, 1.000000}}, // Modern light gray
+    {@"underPageBackgroundColor", NSCalibratedRGBColorSpace, {0.940, 0.940, 0.940, 1.000000}}, // Slightly darker
+    {@"controlBackgroundColor", NSCalibratedRGBColorSpace, {0.980, 0.980, 0.980, 1.000000}}, // Very light gray
+    {@"controlAlternatingRowColor", NSCalibratedRGBColorSpace, {0.990, 0.990, 0.990, 1.000000}}, // Subtle alternating
+    {@"selectedContentBackgroundColor", NSCalibratedRGBColorSpace, {0.263, 0.537, 0.976, 1.000000}}, // Modern blue selection
+    {@"unemphasizedSelectedContentBackgroundColor", NSCalibratedRGBColorSpace, {0.780, 0.780, 0.780, 1.000000}}, // Muted selection
+    {@"alternatingContentBackgroundColor", NSCalibratedRGBColorSpace, {0.985, 0.985, 0.985, 1.000000}}, // Very subtle alternating
+    {@"findHighlightColor", NSCalibratedRGBColorSpace, {1.000000, 0.929, 0.000000, 1.000000}}, // Modern yellow highlight
+    {@"controlColor", NSCalibratedRGBColorSpace, {0.263, 0.537, 0.976, 1.000}}, // Modern system blue
+    {@"controlTextColor", NSCalibratedRGBColorSpace, {0.100, 0.100, 0.100, 1.000000}}, // Dark gray text
+    {@"controlShadowColor", NSCalibratedRGBColorSpace, {0.000, 0.000, 0.000, 0.100000}}, // Subtle shadow
+    {@"selectedControlColor", NSCalibratedRGBColorSpace, {0.263, 0.537, 0.976, 1.000000}}, // Modern blue
+    {@"selectedControlTextColor", NSCalibratedWhiteColorSpace, {1.000000, 1.000000}}, // White text on blue
+    {@"disabledControlTextColor", NSCalibratedRGBColorSpace, {0.600, 0.600, 0.600, 1.000000}}, // Medium gray
+    {@"keyboardFocusIndicatorColor", NSCalibratedRGBColorSpace, {0.263, 0.537, 0.976, 1.000000}}, // Modern blue focus
+    {@"controlAccentColor", NSCalibratedRGBColorSpace, {0.263, 0.537, 0.976, 1.000000}}, // Modern system blue
     {nil, nil, {0.f}}};
 
     RawColor Web[] = {
@@ -250,4 +250,3 @@ int main(int argc, char **argv) {
     buildList(@"Web", Web);
     return 0;
 }
-

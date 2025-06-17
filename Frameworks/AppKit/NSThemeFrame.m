@@ -123,23 +123,17 @@ static O2Image *wsZoom, *wsZoomUp, *wsZoomDown;
 
     NSWindow *window = [self window];
     O2Context *_context = [[window graphicsContext] graphicsPort];
-    CGFloat r, g, b, a;
-    [[[self window] backgroundColor] getRed:&r green:&g blue:&b alpha:&a];
-    O2ContextSetRGBStrokeColor(_context, r, g, b, a);
-    O2ContextSetRGBFillColor(_context, r, g, b, a);
-    O2ContextFillRect(_context, bounds);
-
+    
     if([[self window] styleMask] == NSBorderlessWindowMask)
         return;
     
     if([[self window] isSheet])
         bounds.size.height += cheatSheet;
 
-    O2ContextSetGrayStrokeColor(_context, 0.8, 1);
-    O2ContextSetGrayFillColor(_context, 0.8, 1);
-
-    // let's round these corners
+    // Modern window appearance with subtle gradient
     float radius = NSWindowCornerRadius;
+    
+    // Create rounded rectangle path for window frame
     O2ContextBeginPath(_context);
     O2ContextMoveToPoint(_context, _frame.origin.x+radius, NSMaxY(_frame));
     O2ContextAddArc(_context, _frame.origin.x + _frame.size.width - radius,
@@ -159,7 +153,48 @@ static O2Image *wsZoom, *wsZoomUp, *wsZoomDown;
         _frame.size.height - radius, radius, 3.14159, 1.5708, YES);
     O2ContextAddLineToPoint(_context, _frame.origin.x, NSMaxY(_frame));
     O2ContextClosePath(_context);
+    
+    // Modern window background with subtle gradient
+    BOOL isActive = [[self window] isKeyWindow];
+    if (isActive) {
+        // Active window - lighter, more vibrant
+        O2ContextSetRGBFillColor(_context, 0.96, 0.96, 0.96, 1.0);
+    } else {
+        // Inactive window - slightly darker
+        O2ContextSetRGBFillColor(_context, 0.92, 0.92, 0.92, 1.0);
+    }
     O2ContextFillPath(_context);
+    
+    // Subtle border for modern look
+    O2ContextBeginPath(_context);
+    O2ContextMoveToPoint(_context, _frame.origin.x+radius, NSMaxY(_frame));
+    O2ContextAddArc(_context, _frame.origin.x + _frame.size.width - radius,
+        _frame.origin.y + _frame.size.height - radius, radius, 1.5708,
+        0, YES);
+    O2ContextAddLineToPoint(_context, _frame.origin.x + _frame.size.width,
+        _frame.origin.y);
+    O2ContextAddArc(_context, _frame.origin.x + _frame.size.width - radius,
+        _frame.origin.y + radius, radius, 6.28319, 4.71239, YES);
+    O2ContextAddLineToPoint(_context, _frame.origin.x, _frame.origin.y);
+    O2ContextAddArc(_context, _frame.origin.x + radius, _frame.origin.y + radius,
+        radius, 4.71239, 3.14159, YES);
+    O2ContextAddLineToPoint(_context, _frame.origin.x,
+        _frame.origin.y + _frame.size.height);
+    O2ContextAddArc(_context, _frame.origin.x + radius, _frame.origin.y +
+        _frame.size.height - radius, radius, 3.14159, 1.5708, YES);
+    O2ContextAddLineToPoint(_context, _frame.origin.x, NSMaxY(_frame));
+    O2ContextClosePath(_context);
+    
+    // Modern border color
+    O2ContextSetRGBStrokeColor(_context, 0.75, 0.75, 0.75, 1.0);
+    O2ContextSetLineWidth(_context, 0.5);
+    O2ContextStrokePath(_context);
+    
+    // Fill content area with window background
+    CGFloat r, g, b, a;
+    [[[self window] backgroundColor] getRed:&r green:&g blue:&b alpha:&a];
+    O2ContextSetRGBFillColor(_context, r, g, b, a);
+    O2ContextFillRect(_context, bounds);
 
     // window controls
     CGRect button = NSMakeRect(NSWindowControlSpacing,
@@ -186,15 +221,21 @@ static O2Image *wsZoom, *wsZoomUp, *wsZoomDown;
 
     NSString *t = [[self window] title];
     if(t) {
+        // Modern title bar typography
+        BOOL isActive = [[self window] isKeyWindow];
+        NSColor *titleColor = isActive ? 
+            [NSColor colorWithCalibratedRed:0.2 green:0.2 blue:0.2 alpha:1.0] :
+            [NSColor colorWithCalibratedRed:0.5 green:0.5 blue:0.5 alpha:1.0];
+            
         NSDictionary *attrs = @{
-            NSFontAttributeName : [NSFont titleBarFontOfSize:15.0],
-            NSForegroundColorAttributeName : [NSColor blackColor]
+            NSFontAttributeName : [NSFont titleBarFontOfSize:14.0],
+            NSForegroundColorAttributeName : titleColor
         };
         NSAttributedString *title = [[NSAttributedString alloc] initWithString:t attributes:attrs];
         NSSize size = [title size];
         NSRect titleRect = NSMakeRect(
             _frame.size.width / 2 - size.width / 2,
-            _frame.size.height - NSWindowTitleHeight / 3 - size.height / 2,
+            _frame.size.height - NSWindowTitleHeight / 2.5 - size.height / 2,
             size.width, size.height);
         [title drawInRect:titleRect];
     }

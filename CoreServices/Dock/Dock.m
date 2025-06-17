@@ -56,7 +56,7 @@ extern Dock *dock; // our singleton object in main.m
 
     _alpha = [_prefs floatForKey:INFOKEY_OPACITY];
     if(_alpha <= 1.0)
-        _alpha = 0.85;
+        _alpha = 0.92; // More transparent for modern glass effect
 
     [self loadItems];
 
@@ -399,31 +399,68 @@ extern Dock *dock; // our singleton object in main.m
 -(void)drawRect:(NSRect)rect {
     CGContextRef context = [[[self window] graphicsContext] graphicsPort];
 
-    CGContextSetGrayStrokeColor(context, 0.666, [dock alpha]);
-    CGContextSetGrayFillColor(context, 0.666, [dock alpha]);
-
-    // round the corners
-    float radius = RADIUS;
+    // Modern macOS dock styling with enhanced transparency and blur effect
+    // Use a more sophisticated color scheme with subtle gradients
+    float modernAlpha = [dock alpha] * 0.75; // Slightly more transparent for modern look
+    
+    // Create gradient background similar to modern macOS dock
+    CGColorSpaceRef colorSpace = CGColorSpaceCreateDeviceRGB();
+    CGFloat colors[] = {
+        0.95, 0.95, 0.95, modernAlpha,  // Light gray top
+        0.85, 0.85, 0.85, modernAlpha,  // Slightly darker middle
+        0.75, 0.75, 0.75, modernAlpha   // Darker bottom for depth
+    };
+    CGFloat locations[] = {0.0, 0.5, 1.0};
+    CGGradientRef gradient = CGGradientCreateWithColorComponents(colorSpace, colors, locations, 3);
+    
+    // Enhanced corner radius for modern appearance
+    float radius = RADIUS * 1.2;
+    
+    // Create rounded rectangle path
     CGContextBeginPath(context);
-    CGContextMoveToPoint(context, _frame.origin.x+radius, NSMaxY(_frame));
+    CGContextMoveToPoint(context, _frame.origin.x + radius, NSMaxY(_frame));
     CGContextAddArc(context, _frame.origin.x + _frame.size.width - radius,
-        _frame.origin.y + _frame.size.height - radius, radius, 1.5708 /*radians*/,
-        0 /*radians*/, YES);
+        _frame.origin.y + _frame.size.height - radius, radius, M_PI_2, 0, YES);
     CGContextAddLineToPoint(context, _frame.origin.x + _frame.size.width,
-        _frame.origin.y);
+        _frame.origin.y + radius);
     CGContextAddArc(context, _frame.origin.x + _frame.size.width - radius,
-        _frame.origin.y + radius, radius, 6.28319 /*radians*/, 4.71239 /*radians*/,
-        YES);
-    CGContextAddLineToPoint(context, _frame.origin.x, _frame.origin.y);
+        _frame.origin.y + radius, radius, 0, -M_PI_2, YES);
+    CGContextAddLineToPoint(context, _frame.origin.x + radius, _frame.origin.y);
     CGContextAddArc(context, _frame.origin.x + radius, _frame.origin.y + radius,
-        radius, 4.71239, 3.14159, YES);
-    CGContextAddLineToPoint(context, _frame.origin.x,
-        _frame.origin.y + _frame.size.height);
+        radius, -M_PI_2, M_PI, YES);
+    CGContextAddLineToPoint(context, _frame.origin.x, _frame.origin.y + _frame.size.height - radius);
     CGContextAddArc(context, _frame.origin.x + radius, _frame.origin.y +
-        _frame.size.height - radius, radius, 3.14159, 1.5708, YES);
-    CGContextAddLineToPoint(context, _frame.origin.x, NSMaxY(_frame));
+        _frame.size.height - radius, radius, M_PI, M_PI_2, YES);
     CGContextClosePath(context);
-    CGContextFillPath(context);
+    
+    // Apply gradient fill
+    CGContextSaveGState(context);
+    CGContextClip(context);
+    CGPoint startPoint = CGPointMake(_frame.origin.x, NSMaxY(_frame));
+    CGPoint endPoint = CGPointMake(_frame.origin.x, _frame.origin.y);
+    CGContextDrawLinearGradient(context, gradient, startPoint, endPoint, 0);
+    CGContextRestoreGState(context);
+    
+    // Add subtle border for definition
+    CGContextSetRGBStrokeColor(context, 0.6, 0.6, 0.6, modernAlpha * 0.8);
+    CGContextSetLineWidth(context, 0.5);
+    CGContextStrokePath(context);
+    
+    // Add inner highlight for glass effect
+    CGContextBeginPath(context);
+    CGRect highlightRect = CGRectInset(_frame, 1, 1);
+    CGContextMoveToPoint(context, highlightRect.origin.x + radius, NSMaxY(highlightRect));
+    CGContextAddArc(context, highlightRect.origin.x + highlightRect.size.width - radius,
+        highlightRect.origin.y + highlightRect.size.height - radius, radius - 1, M_PI_2, 0, YES);
+    CGContextAddLineToPoint(context, highlightRect.origin.x + highlightRect.size.width,
+        highlightRect.origin.y + highlightRect.size.height * 0.6); // Only highlight top portion
+    CGContextSetRGBStrokeColor(context, 1.0, 1.0, 1.0, modernAlpha * 0.3);
+    CGContextSetLineWidth(context, 1.0);
+    CGContextStrokePath(context);
+    
+    // Cleanup
+    CGGradientRelease(gradient);
+    CGColorSpaceRelease(colorSpace);
 
     [self setNeedsDisplay:YES];
 }
@@ -431,15 +468,42 @@ extern Dock *dock; // our singleton object in main.m
 
 @implementation Divider
 -(void)drawRect:(NSRect)rect {
-    [[NSColor darkGrayColor] set];
+    // Modern subtle divider with gradient effect
     NSBezierPath *line = [NSBezierPath bezierPath];
+    [line setLineWidth:1.0];
+    
     if (NSWidth(_bounds) > NSHeight(_bounds)) {
-        [line moveToPoint: NSMakePoint(NSMinX(_bounds), NSMidY(_bounds))];
-        [line lineToPoint: NSMakePoint(NSMaxX(_bounds), NSMidY(_bounds))];
+        // Horizontal divider
+        [line moveToPoint: NSMakePoint(NSMinX(_bounds) + 4, NSMidY(_bounds))];
+        [line lineToPoint: NSMakePoint(NSMaxX(_bounds) - 4, NSMidY(_bounds))];
+        
+        // Draw subtle shadow line below
+        [[NSColor colorWithDeviceRed:0.0 green:0.0 blue:0.0 alpha:0.15] set];
+        [line stroke];
+        
+        // Draw highlight line above
+        NSBezierPath *highlight = [NSBezierPath bezierPath];
+        [highlight setLineWidth:1.0];
+        [highlight moveToPoint: NSMakePoint(NSMinX(_bounds) + 4, NSMidY(_bounds) + 1)];
+        [highlight lineToPoint: NSMakePoint(NSMaxX(_bounds) - 4, NSMidY(_bounds) + 1)];
+        [[NSColor colorWithDeviceRed:1.0 green:1.0 blue:1.0 alpha:0.25] set];
+        [highlight stroke];
     } else {
-        [line moveToPoint: NSMakePoint(NSMidX(_bounds), NSMinY(_bounds))];
-        [line lineToPoint: NSMakePoint(NSMidX(_bounds), NSMaxY(_bounds))];
+        // Vertical divider
+        [line moveToPoint: NSMakePoint(NSMidX(_bounds), NSMinY(_bounds) + 4)];
+        [line lineToPoint: NSMakePoint(NSMidX(_bounds), NSMaxY(_bounds) - 4)];
+        
+        // Draw subtle shadow line to the right
+        [[NSColor colorWithDeviceRed:0.0 green:0.0 blue:0.0 alpha:0.15] set];
+        [line stroke];
+        
+        // Draw highlight line to the left
+        NSBezierPath *highlight = [NSBezierPath bezierPath];
+        [highlight setLineWidth:1.0];
+        [highlight moveToPoint: NSMakePoint(NSMidX(_bounds) - 1, NSMinY(_bounds) + 4)];
+        [highlight lineToPoint: NSMakePoint(NSMidX(_bounds) - 1, NSMaxY(_bounds) - 4)];
+        [[NSColor colorWithDeviceRed:1.0 green:1.0 blue:1.0 alpha:0.25] set];
+        [highlight stroke];
     }
-    [line stroke];
 }
 @end

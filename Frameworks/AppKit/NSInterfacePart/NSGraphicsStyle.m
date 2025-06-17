@@ -319,8 +319,11 @@ static NSDictionary *sDimmedMenuTextShadowAttributes = nil;
 {
 	if (enabled)
 	{
+		// Modern rounded menu selection
+		NSBezierPath *selectionPath = [NSBezierPath bezierPathWithRoundedRect:NSInsetRect(rect, 2, 1) 
+		                                                              xRadius:4.0 yRadius:4.0];
 		[[NSColor selectedMenuItemColor] setFill];
-		NSRectFill(rect);
+		[selectionPath fill];
 	}
 }
 
@@ -357,21 +360,89 @@ static NSDictionary *sDimmedMenuTextShadowAttributes = nil;
 }
 
 -(void)drawPushButtonNormalInRect:(NSRect)rect defaulted:(BOOL)defaulted {
+   CGContextRef context = [[NSGraphicsContext currentContext] graphicsPort];
+   
    if(defaulted){
-    [[NSColor blackColor] setFill];
-    NSRectFill(rect);
+    // Modern blue accent for default button
+    [[NSColor controlAccentColor] setFill];
+    NSBezierPath *path = [NSBezierPath bezierPathWithRoundedRect:rect xRadius:6.0 yRadius:6.0];
+    [path fill];
     rect = NSInsetRect(rect,1,1);
    }
-
-   NSDrawButton(rect,rect);
+   
+   // Modern button with subtle gradient and rounded corners
+   CGContextSaveGState(context);
+   
+   // Create rounded rectangle path
+   NSBezierPath *buttonPath = [NSBezierPath bezierPathWithRoundedRect:rect xRadius:5.0 yRadius:5.0];
+   [buttonPath addClip];
+   
+   // Subtle gradient background
+   NSColor *topColor = [NSColor colorWithCalibratedRed:0.98 green:0.98 blue:0.98 alpha:1.0];
+   NSColor *bottomColor = [NSColor colorWithCalibratedRed:0.94 green:0.94 blue:0.94 alpha:1.0];
+   
+   NSGradient *gradient = [[NSGradient alloc] initWithStartingColor:topColor endingColor:bottomColor];
+   [gradient drawInRect:rect angle:90.0];
+   [gradient release];
+   
+   // Subtle border
+   [[NSColor colorWithCalibratedRed:0.8 green:0.8 blue:0.8 alpha:1.0] setStroke];
+   [buttonPath setLineWidth:0.5];
+   [buttonPath stroke];
+   
+   CGContextRestoreGState(context);
 }
 
 -(void)drawPushButtonPressedInRect:(NSRect)rect {
-   NSInterfaceDrawDepressedButton(rect,rect);
+   CGContextRef context = [[NSGraphicsContext currentContext] graphicsPort];
+   CGContextSaveGState(context);
+   
+   // Create rounded rectangle path
+   NSBezierPath *buttonPath = [NSBezierPath bezierPathWithRoundedRect:rect xRadius:5.0 yRadius:5.0];
+   [buttonPath addClip];
+   
+   // Darker pressed state with inverted gradient
+   NSColor *topColor = [NSColor colorWithCalibratedRed:0.88 green:0.88 blue:0.88 alpha:1.0];
+   NSColor *bottomColor = [NSColor colorWithCalibratedRed:0.92 green:0.92 blue:0.92 alpha:1.0];
+   
+   NSGradient *gradient = [[NSGradient alloc] initWithStartingColor:topColor endingColor:bottomColor];
+   [gradient drawInRect:rect angle:90.0];
+   [gradient release];
+   
+   // Slightly darker border for pressed state
+   [[NSColor colorWithCalibratedRed:0.7 green:0.7 blue:0.7 alpha:1.0] setStroke];
+   [buttonPath setLineWidth:0.5];
+   [buttonPath stroke];
+   
+   CGContextRestoreGState(context);
 }
 
 -(void)drawPushButtonHighlightedInRect:(NSRect)rect {
-   NSInterfaceDrawHighlightedButton(rect,rect);
+   CGContextRef context = [[NSGraphicsContext currentContext] graphicsPort];
+   CGContextSaveGState(context);
+   
+   // Create rounded rectangle path
+   NSBezierPath *buttonPath = [NSBezierPath bezierPathWithRoundedRect:rect xRadius:5.0 yRadius:5.0];
+   [buttonPath addClip];
+   
+   // Slightly brighter highlighted state
+   NSColor *topColor = [NSColor colorWithCalibratedRed:0.99 green:0.99 blue:0.99 alpha:1.0];
+   NSColor *bottomColor = [NSColor colorWithCalibratedRed:0.96 green:0.96 blue:0.96 alpha:1.0];
+   
+   NSGradient *gradient = [[NSGradient alloc] initWithStartingColor:topColor endingColor:bottomColor];
+   [gradient drawInRect:rect angle:90.0];
+   [gradient release];
+   
+   // Subtle blue tint for highlight
+   [[NSColor colorWithCalibratedRed:0.263 green:0.537 blue:0.976 alpha:0.3] setFill];
+   [buttonPath fill];
+   
+   // Border with slight blue tint
+   [[NSColor colorWithCalibratedRed:0.6 green:0.7 blue:0.9 alpha:1.0] setStroke];
+   [buttonPath setLineWidth:0.5];
+   [buttonPath stroke];
+   
+   CGContextRestoreGState(context);
 }
 
 -(NSSize)sizeOfButtonImage:(NSImage *)image enabled:(BOOL)enabled mixed:(BOOL)mixed {
@@ -554,7 +625,21 @@ static NSDictionary *sDimmedMenuTextShadowAttributes = nil;
 }
 
 -(void)drawScrollerKnobInRect:(NSRect)rect vertical:(BOOL)vertical highlight:(BOOL)highlight {
-   NSDrawButton(rect,rect);
+   // Modern scrollbar knob with rounded corners
+   NSBezierPath *knobPath = [NSBezierPath bezierPathWithRoundedRect:NSInsetRect(rect, 1, 1) 
+                                                            xRadius:3.0 yRadius:3.0];
+   
+   if (highlight) {
+       [[NSColor colorWithCalibratedRed:0.6 green:0.6 blue:0.6 alpha:1.0] setFill];
+   } else {
+       [[NSColor colorWithCalibratedRed:0.75 green:0.75 blue:0.75 alpha:1.0] setFill];
+   }
+   [knobPath fill];
+   
+   // Subtle border
+   [[NSColor colorWithCalibratedRed:0.65 green:0.65 blue:0.65 alpha:1.0] setStroke];
+   [knobPath setLineWidth:0.5];
+   [knobPath stroke];
 }
 
 -(void)drawScrollerTrackInRect:(NSRect)rect vertical:(BOOL)vertical upOrLeft:(BOOL)upOrLeft {
@@ -786,11 +871,22 @@ static NSDictionary *sDimmedMenuTextShadowAttributes = nil;
 @implementation NSGraphicsStyle (NSTextField)
 
 -(void)drawTextFieldBorderInRect:(NSRect)rect bezeledNotLine:(BOOL)bezeledNotLine {
-   if(bezeledNotLine)
-    NSDrawWhiteBezel(rect,rect);
-   else {
-    [[NSColor blackColor] setStroke];
-    NSFrameRect(rect);
+   if(bezeledNotLine) {
+       // Modern text field with rounded corners and subtle border
+       NSBezierPath *fieldPath = [NSBezierPath bezierPathWithRoundedRect:rect xRadius:4.0 yRadius:4.0];
+       
+       // White background
+       [[NSColor whiteColor] setFill];
+       [fieldPath fill];
+       
+       // Subtle border
+       [[NSColor colorWithCalibratedRed:0.8 green:0.8 blue:0.8 alpha:1.0] setStroke];
+       [fieldPath setLineWidth:1.0];
+       [fieldPath stroke];
+   } else {
+       // Simple line border with modern color
+       [[NSColor colorWithCalibratedRed:0.7 green:0.7 blue:0.7 alpha:1.0] setStroke];
+       NSFrameRect(rect);
    }
 }
 
